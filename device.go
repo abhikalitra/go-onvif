@@ -125,7 +125,7 @@ func (device Device) GetDiscoveryMode() (string, error) {
 	}
 
 	// Send SOAP request
-	response, err := soap.SendRequest(device.XAddr)
+	response, err := soap.SendRequestWithUserPassword(device.XAddr, device.User, device.Password)
 	if err != nil {
 		return "", err
 	}

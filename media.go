@@ -136,7 +136,7 @@ func (device Device) GetStreamURI(profileToken, protocol string) (MediaURI, erro
 	}
 
 	// Send SOAP request
-	response, err := soap.SendRequest(device.XAddr)
+	response, err := soap.SendRequestWithUserPassword(device.XAddr, device.User, device.Password)
 	if err != nil {
 		return MediaURI{}, err
 	}

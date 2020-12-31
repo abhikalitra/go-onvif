@@ -28,12 +28,24 @@ type SOAP struct {
 
 // SendRequest sends SOAP request to xAddr
 func (soap SOAP) SendRequest(xaddr string) (mxj.Map, error) {
+	return soap.SendRequestInternal(xaddr, "", "")
+}
+
+func (soap SOAP) SendRequestWithUserPassword(xaddr string, username string, password string) (mxj.Map, error) {
+	return soap.SendRequestInternal(xaddr, username, password)
+}
+
+// SendRequest sends SOAP request to xAddr
+func (soap SOAP) SendRequestInternal(xaddr string, username string, password string) (mxj.Map, error) {
 	// Create SOAP request
 
 	// Make sure URL valid and add authentication in xAddr
 	urlXAddr, err := url.Parse(xaddr)
 
-	if urlXAddr.User != nil && urlXAddr.User.Username() != "" {
+	if username != "" && password != "" {
+		soap.User = username
+		soap.Password = password
+	} else if urlXAddr.User != nil && urlXAddr.User.Username() != "" {
 		soap.User = urlXAddr.User.Username()
 		soap.Password, _ = urlXAddr.User.Password()
 	}
@@ -113,7 +125,8 @@ func (soap SOAP) createRequest() string {
 }
 
 func (soap SOAP) createUserToken() string {
-	nonce := uuid.NewV4().Bytes()
+	uuidvalue, _ := uuid.NewV4()
+	nonce := uuidvalue.Bytes()
 	nonce64 := base64.StdEncoding.EncodeToString(nonce)
 	timestamp := time.Now().Add(soap.TokenAge).UTC().Format(time.RFC3339)
 	token := string(nonce) + timestamp + soap.Password
